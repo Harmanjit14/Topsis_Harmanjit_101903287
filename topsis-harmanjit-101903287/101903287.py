@@ -16,31 +16,31 @@ def main():
         print("ERROR : NUMBER OF PARAMETERS")
         print("USAGE EXAMPLE : python 101903287.py <input_file.csv> 1,1,1,1 +,+,-,+ <result_file.csv> ")
         exit(1)
-    
+
     # Checking for input file in directory
     elif not os.path.isfile(sys.argv[1]):
         print(f"ERROR : {sys.argv[1]} Don't exist!!")
         exit(1)
-    
+
     # Checking for input file formats
     elif ".csv" != (os.path.splitext(sys.argv[1]))[1]:
         print(f"ERROR : {sys.argv[1]} is not csv!")
         exit(1)
     # Checking for output file formats
     elif (".csv" != (os.path.splitext(sys.argv[4]))[1]):
-            print("ERROR : Output file extension is wrong")
-            exit(1)
-    
+        print("ERROR : Output file extension is wrong")
+        exit(1)
+
     # Function Code
     else:
         df = pd.read_csv(sys.argv[1])
         col = len(df.columns.values)
-        
+
         # Checking for columns
-        if col<3:
+        if col < 3:
             print("ERROR : Input file have less than 3 columns")
             exit(1)
-            
+
         # Handling errors of weighted and impact arrays
         try:
             weights = [int(i) for i in sys.argv[2].split(',')]
@@ -52,20 +52,19 @@ def main():
             if not (i == '+' or i == '-'):
                 print("ERROR : In impact array please check again")
                 exit(1)
-                
+
         # Checking number of column,weights and impacts is same or not
         if col != len(weights)+1 or col != len(impact)+1:
             print(
                 "ERROR : Number of weights, number of impacts and number of columns not same")
             exit(1)
-        
+
         # Handeling non-numeric data and filling non-numeric data with mean
         for i in range(1, col):
             pd.to_numeric(df.iloc[:, i], errors='coerce')
             df.iloc[:, i].fillna((df.iloc[:, i].mean()), inplace=True)
-            
-        topsis(df,col,weights,impact)
-            
+
+        topsis(df, col, weights, impact)
 
 
 def normalize(df, col, weights):
@@ -76,7 +75,7 @@ def normalize(df, col, weights):
             temp = temp + df.iloc[j, i]**2
         temp = temp**0.5
         for j in range(len(df)):
-        # Pandas iat[] method is used to return data in a dataframe at the passed location.
+            # Pandas iat[] method is used to return data in a dataframe at the passed location.
             df.iat[j, i] = (df.iloc[j, i] / temp)*weights[i-1]
     return df
 
@@ -93,13 +92,13 @@ def calculate_values(df, col, impact):
 
 def topsis(df, col, weights, impact):
     '''calculating topsis score and rank'''
-    
+
     # normalizing the array
     df = normalize(df, col, weights)
 
     # Calculating positive and negative values
     p, n = calculate_values(df, col, impact)
-    
+
     score = []
     for i in range(len(df)):
         temp_p, temp_n = 0, 0
@@ -120,4 +119,4 @@ def topsis(df, col, weights, impact):
 
 
 if __name__ == "__main__":
-   main()
+    main()
